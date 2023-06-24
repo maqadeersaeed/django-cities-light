@@ -69,7 +69,7 @@ __all__ = [
     'region_items_pre_import', 'region_items_post_import',
     'subregion_items_pre_import', 'subregion_items_post_import',
     'city_items_pre_import', 'city_items_post_import',
-    'translation_items_pre_import']
+    'translation_items_pre_import', 'model_language_post_import']
 
 # providing_args=['items'] for signals below
 city_items_pre_import = django.dispatch.Signal()
@@ -83,3 +83,4 @@ city_items_post_import = django.dispatch.Signal()
 subregion_items_post_import = django.dispatch.Signal()
 region_items_post_import = django.dispatch.Signal()
 country_items_post_import = django.dispatch.Signal()
+model_language_post_import = django.dispatch.Signal()

@@ -586,7 +586,6 @@ It is possible to force the import of files which weren't downloaded using the
             )
 
     def translation_parse(self, items):
-        # print('maqs :::::::::::::::::::::::::::::::: Start Parsing translatios')
         if not hasattr(self, 'translation_data'):
             self.country_ids = set(Country.objects.values_list(
                 'geoname_id', flat=True))
@@ -645,11 +644,9 @@ It is possible to force the import of files which weren't downloaded using the
             item_name)
 
     def translation_import(self):
-        print('maqs :::::::::::::::::::::::::::::::: Start importing translatios')
         data = getattr(self, 'translation_data', None)
 
         if not data:
-            print('::::::::: No transaltion data, Returning ::::::::::')
             return
 
         max = 0
@@ -658,14 +655,14 @@ It is possible to force the import of files which weren't downloaded using the
 
         i = 0
         self.progress_start(max)
-        
+
         for model_class, model_class_data in data.items():
             for geoname_id, geoname_data in model_class_data.items():
                 try:
                     model = model_class.objects.get(geoname_id=geoname_id)
                 except model_class.DoesNotExist:
                     continue
-                
+
                 save = False
                 alternate_names = set()
                 for lang, names in geoname_data.items():
@@ -685,12 +682,6 @@ It is possible to force the import of files which weren't downloaded using the
                     model.alternate_names = alternate_names
                     save = True
 
-                model_language_post_import.send(
-                            sender=self,
-                            instance=model,
-                            alt_names=alternate_names,
-                            geo_name_data=geoname_data
-                        )
                 if save:
                     model.save(force_update=True)
 
