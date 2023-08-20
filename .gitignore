@@ -13,6 +13,7 @@ build/
 dist/
 venv/
 *.egg/
+.egg/*
 src/cities_light/version.py
 
 # Ignore the downloaded data.
