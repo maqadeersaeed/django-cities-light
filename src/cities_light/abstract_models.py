@@ -13,6 +13,11 @@ from unidecode import unidecode
 from .validators import timezone_validator
 from .settings import INDEX_SEARCH_NAMES, CITIES_LIGHT_APP_NAME
 
+
+from django.contrib.postgres.fields import SearchVectorField # Added By Qadeer
+from django.contrib.postgres.indexes import GinIndex # Added By Qadeer
+from django.contrib.postgres.search import SearchVector # Added By Qadeer
+
 __all__ = ['AbstractCountry', 'AbstractRegion',
            'AbstractSubRegion', 'AbstractCity',
            'CONTINENT_CHOICES']
@@ -171,11 +176,14 @@ class AbstractCity(Base):
 
     display_name = models.CharField(max_length=200)
 
-    search_names = ToSearchTextField(
-        max_length=4000,
-        db_index=INDEX_SEARCH_NAMES,
-        blank=True,
-        default='')
+    # search_names = ToSearchTextField(
+    #     max_length=4000,
+    #     db_index=INDEX_SEARCH_NAMES,
+    #     blank=True,
+    #     default='') Commented by Qadeer
+    search_names = models.TextField(max_length=6000) # Added By Qadeer
+    search_vector = SearchVectorField(null=True) # Added BY Qadeer
+
 
     latitude = models.DecimalField(
         max_digits=8,
@@ -206,6 +214,7 @@ class AbstractCity(Base):
         unique_together = (('region', 'subregion', 'name'),
                            ('region', 'subregion', 'slug'))
         verbose_name_plural = _('cities')
+        indexes = [GinIndex(fields=['search_vector'])]
         abstract = True
 
     def get_display_name(self):
@@ -225,3 +234,24 @@ class AbstractCity(Base):
             return pytz.timezone(self.timezone)
         except (pytz.UnknownTimeZoneError, AttributeError):
             return pytz.timezone(settings.TIME_ZONE)
+    
+    def save(self, *args, **kwargs): # Added BY Qadeer
+        self.search_vector = SearchVector('search_names')
+        super().save(*args, **kwargs)
+
+    '''
+    save overrides save operation and sets updated token of search_names field in search vector, alternate is creting PLSQL TRIGGER mentioned below
+    
+    CREATE FUNCTION update_search_vector() RETURNS trigger AS $$
+    BEGIN
+        NEW.search_vector := to_tsvector('english', NEW.search_names);
+        RETURN NEW;
+    END
+    $$ LANGUAGE plpgsql;
+    
+    CREATE TRIGGER update_search_vector_trigger
+    BEFORE INSERT OR UPDATE ON your_app_city
+    FOR EACH ROW EXECUTE FUNCTION update_search_vector();
+
+
+    '''

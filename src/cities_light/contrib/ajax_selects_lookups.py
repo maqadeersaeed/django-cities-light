@@ -13,7 +13,8 @@ from django.db.models import Q
 from ..loading import get_cities_models
 
 Country, Region, SubRegion, City = get_cities_models()
-
+from django.contrib.postgres.search import SearchVector, SearchQuery
+from django.contrib.postgres.search import SearchRank
 
 class StandardLookupChannel(LookupChannel):
     """
@@ -77,5 +78,7 @@ class CityLookup(StandardLookupChannel):
     model = City
 
     def get_query(self, q, request):
-        return City.objects.filter(search_names__icontains=q
-            ).select_related('country').distinct()
+        # return City.objects.filter(search_names__icontains=q).select_related('country').distinct()
+        
+        # cities = City.objects.annotate(search=SearchVector('search_names')).filter(search=SearchQuery(q)) Added By Qadere ::: Works but I am using ranked Search
+        cities = cities.annotate(rank=SearchRank(SearchVector('search_names'), SearchQuery(q))).order_by('-rank')

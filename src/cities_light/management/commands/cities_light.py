@@ -151,6 +151,7 @@ It is possible to force the import of files which weren't downloaded using the
         self.keep_slugs = options.get('keep_slugs', False)
         self.progress_enabled = options.get('progress')
 
+        print('maqs :::: Next Step')
         self.progress_init()
 
         sources = list(itertools.chain(
