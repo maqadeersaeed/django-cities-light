@@ -14,7 +14,8 @@ from .validators import timezone_validator
 from .settings import INDEX_SEARCH_NAMES, CITIES_LIGHT_APP_NAME
 
 
-from django.contrib.postgres.fields import SearchVectorField # Added By Qadeer
+# from django.contrib.postgres.fields import SearchVectorField # Added By Qadeer
+from django.contrib.postgres.search import SearchVectorField # Added By Qadeer
 from django.contrib.postgres.indexes import GinIndex # Added By Qadeer
 from django.contrib.postgres.search import SearchVector # Added By Qadeer
 
