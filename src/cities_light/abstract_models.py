@@ -236,10 +236,6 @@ class AbstractCity(Base):
         except (pytz.UnknownTimeZoneError, AttributeError):
             return pytz.timezone(settings.TIME_ZONE)
     
-    def save(self, *args, **kwargs): # Added BY Qadeer
-        self.search_vector = SearchVector('search_names')
-        super().save(*args, **kwargs)
-
     '''
     save overrides save operation and sets updated token of search_names field in search vector, alternate is creting PLSQL TRIGGER mentioned below
     

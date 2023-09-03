@@ -1,3 +1,4 @@
+
 """
 Signals for this application.
 
@@ -84,3 +85,20 @@ subregion_items_post_import = django.dispatch.Signal()
 region_items_post_import = django.dispatch.Signal()
 country_items_post_import = django.dispatch.Signal()
 model_language_post_import = django.dispatch.Signal()
+
+
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from django.contrib.postgres.search import SearchVector
+from django.db import connection
+from models import AbstractCity
+
+@receiver(post_save, sender=AbstractCity)
+def update_search_vector(sender, instance, **kwargs):
+    # Directly update the search_vector using SQL
+    with connection.cursor() as cursor:
+        cursor.execute("""
+            UPDATE masterdata_city
+            SET search_vector = to_tsvector('english', %s)
+            WHERE id = %s
+        """, [instance.search_names, instance.id])
