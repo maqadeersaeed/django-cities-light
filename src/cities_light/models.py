@@ -106,7 +106,7 @@ if CITIES_LIGHT_APP_NAME == DEFAULT_APP_NAME:
         pass
     connect_default_signals(Region)
 
-    __all__.append('Region')
+    __all__.append('Region') 
 
     class SubRegion(AbstractSubRegion):
         pass
